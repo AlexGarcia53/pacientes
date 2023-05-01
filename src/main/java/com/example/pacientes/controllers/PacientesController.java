@@ -9,6 +9,8 @@ import com.example.pacientes.services.PacientesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,9 +32,11 @@ public class PacientesController {
         return pacientesService.getPacienteNSSContrasenia(nss, contrasenia);
     }
     
-    @GetMapping("/email/{email}/contrasenia/{contrasenia}")
-    public Paciente getEmailAndContrasenia(@PathVariable String email, @PathVariable String contrasenia) {
-        return pacientesService.getPaciente(email, contrasenia);
+    @PostMapping("/login/email")
+    public Paciente getEmailAndContrasenia(@RequestBody Paciente paciente) {
+        return pacientesService.getPaciente(paciente.getEmail(), paciente.getContrasenia());
     }
+    
+    
 
 }
