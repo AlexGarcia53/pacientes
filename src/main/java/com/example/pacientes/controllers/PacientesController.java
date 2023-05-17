@@ -4,15 +4,18 @@
  */
 package com.example.pacientes.controllers;
 
+import com.example.pacientes.dtos.PacienteResponse;
 import com.example.pacientes.entity.Paciente;
 import com.example.pacientes.services.PacientesService;
+import com.example.pacientes.dtos.WrapperResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,22 +24,28 @@ public class PacientesController {
 
     @Autowired
     private PacientesService pacientesService;
-
-    @GetMapping("/{nss}")
-    public Paciente getPacienteNSS(@PathVariable Long nss) {
-        return pacientesService.getPacienteNSS(nss);
+    
+    @PostMapping("/login")
+    public ResponseEntity<WrapperResponse<PacienteResponse>> login(@RequestBody Paciente paciente) {
+        try{
+            PacienteResponse responsePaciente = pacientesService.login(paciente.getEmail(), paciente.getContrasenia());
+            WrapperResponse<PacienteResponse> response = new WrapperResponse<>("Sesion iniciada", responsePaciente);
+            return response.createResponse(HttpStatus.OK);
+        }catch(Exception e){
+            WrapperResponse<PacienteResponse> response = new WrapperResponse<>(e.getMessage(), null);
+            return response.createResponse(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @GetMapping("/nss/{nss}/contrasenia/{contrasenia}")
-    public Paciente getPacienteNSSContrasenia(@PathVariable Long nss, @PathVariable String contrasenia) {
-        return pacientesService.getPacienteNSSContrasenia(nss, contrasenia);
+    @PostMapping("/save")
+    public ResponseEntity<WrapperResponse<String>> register(@RequestBody Paciente paciente){
+        try{
+            pacientesService.register(paciente);
+            WrapperResponse<String> response = new WrapperResponse<>("Registro exitoso!!!", null);
+            return response.createResponse(HttpStatus.OK);
+        }catch (Exception e){
+            WrapperResponse<String> response = new WrapperResponse<>(e.getMessage(), null);
+            return response.createResponse(HttpStatus.NOT_FOUND);
+        }
     }
-    
-    @PostMapping("/login/email")
-    public Paciente getEmailAndContrasenia(@RequestBody Paciente paciente) {
-        return pacientesService.getPaciente(paciente.getEmail(), paciente.getContrasenia());
-    }
-    
-    
-
 }

@@ -4,9 +4,12 @@
  */
 package com.example.pacientes.services;
 
+import com.example.pacientes.dtos.PacienteResponse;
 import com.example.pacientes.entity.Paciente;
 import com.example.pacientes.repositories.PacientesRepository;
 import java.util.List;
+
+import com.example.pacientes.security.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,29 +18,34 @@ public class PacientesService {
 
     @Autowired
     private PacientesRepository pacientesRepository;
+    @Autowired
+    private JWTUtils jwtUtils;
 
-    public Paciente getPaciente(String email, String contrasenia) {
+    public PacienteResponse login(String email, String contrasenia) {
+        //Obtiene el paciente de la BD
         List<Paciente> pacientes = pacientesRepository.findByCorreoAndContrasenia(email, contrasenia);
+
+        //Arroja un error si el paciente no existe
         if (pacientes.isEmpty()) {
-            return null;
+            throw new RuntimeException("El correo o la contraseña no coinciden");
         }
-        return pacientes.get(0);
+
+        Paciente paciente = pacientes.get(0);
+        //Transforma el paciente para no mandar la contrasenia y si el token
+        PacienteResponse pacienteResponse = convertirPacienteAPacienteResponse(paciente);
+
+        return pacienteResponse;
     }
 
-    public Paciente getPacienteNSS(Long nss) {
-        List<Paciente> pacientes = pacientesRepository.findByNumeroSeguroSocial(nss);
-        if (pacientes.isEmpty()) {
-            return null;
-        }
-        return pacientes.get(0);
+    public void register(Paciente paciente){
+        pacientesRepository.save(paciente);
     }
 
-    public Paciente getPacienteNSSContrasenia(Long nss, String contrasenia) {
-        List<Paciente> pacientes = pacientesRepository.findByNumeroAndContrasenia(nss, contrasenia);
-        if (pacientes.isEmpty()) {
-            return null;
-        }
-        return pacientes.get(0);
+    private PacienteResponse convertirPacienteAPacienteResponse(Paciente paciente){
+        String token = jwtUtils.generateToken(paciente);
+        System.out.println(token);
+        PacienteResponse pacienteResponse = new PacienteResponse(paciente.getId(),
+                paciente.getNombre(), paciente.getEdad(), token, paciente.getEmail(), paciente.getNss());
+        return pacienteResponse;
     }
-
 }

@@ -4,12 +4,14 @@
  */
 package com.example.pacientes.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Data;
+
+import java.util.Collection;
 
 @Data
 @Entity
-public class Paciente {
+public class Paciente{
     
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY )
@@ -30,6 +32,40 @@ public class Paciente {
      
     @Column(name = "nss_paciente")
     private Long nss;
-    
-    
+
+
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return null;
+//    }
+//
+//    @Override
+//    public String getPassword() {
+//        return contrasenia;
+//    }
+//
+//    @Override
+//    public String getUsername() {
+//        return email;
+//    }
+//
+//    @Override
+//    public boolean isAccountNonExpired() {
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isAccountNonLocked() {
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean isCredentialsNonExpired() {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isEnabled() {
+//        return true;
+//    }
 }
