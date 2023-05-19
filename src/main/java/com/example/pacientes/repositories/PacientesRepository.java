@@ -19,6 +19,9 @@ public interface PacientesRepository extends JpaRepository<Paciente, Long> {
     @Query("SELECT p FROM Paciente p WHERE p.email = :email AND p.contrasenia = :contrasenia")
     List<Paciente> findByCorreoAndContrasenia(@Param("email") String email, @Param("contrasenia") String contrasenia);
     
+    @Query("SELECT p FROM Paciente p WHERE p.email = :email ")
+    List<Paciente> findByCorreo(@Param("email") String email);
+    
     @Query("SELECT p FROM Paciente p WHERE p.nss = :nss")
     List<Paciente> findByNumeroSeguroSocial(@Param("nss") Long nss);
     

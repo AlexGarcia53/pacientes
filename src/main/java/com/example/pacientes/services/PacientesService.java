@@ -10,6 +10,7 @@ import com.example.pacientes.repositories.PacientesRepository;
 import java.util.List;
 
 import com.example.pacientes.security.JWTUtils;
+import com.example.pacientes.security.Encriptacion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +21,28 @@ public class PacientesService {
     private PacientesRepository pacientesRepository;
     @Autowired
     private JWTUtils jwtUtils;
+    @Autowired
+    private Encriptacion encriptacion;
 
     public PacienteResponse login(String email, String contrasenia) {
+        
         //Obtiene el paciente de la BD
-        List<Paciente> pacientes = pacientesRepository.findByCorreoAndContrasenia(email, contrasenia);
+        List<Paciente> pacientes = pacientesRepository.findByCorreo(email);
 
         //Arroja un error si el paciente no existe
         if (pacientes.isEmpty()) {
-            throw new RuntimeException("El correo o la contraseña no coinciden");
+            throw new RuntimeException("El correo no existe");
         }
-
+        
         Paciente paciente = pacientes.get(0);
+        
+        String contraseniaDes = encriptacion.decrypt(paciente.getContrasenia());
+        
+        if(!contrasenia.equals(contraseniaDes)){
+            throw new RuntimeException("La contraseña es incorrecta");
+        }
+        
+        System.out.println( contraseniaDes);
         //Transforma el paciente para no mandar la contrasenia y si el token
         PacienteResponse pacienteResponse = convertirPacienteAPacienteResponse(paciente);
 
@@ -38,6 +50,9 @@ public class PacientesService {
     }
 
     public void register(Paciente paciente){
+        
+        paciente.setContrasenia(encriptacion.encrypt(paciente.getContrasenia()));
+   
         pacientesRepository.save(paciente);
     }
 
